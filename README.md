@@ -24,3 +24,6 @@
 
 # uninstall-dpkg.sh
 > 使用`dpkg`卸载软件
+
+# open_disable_web_security_chrome.sh
+> 开发环境调试、POC验证时，禁用chrome跨域限制会更方便一些
