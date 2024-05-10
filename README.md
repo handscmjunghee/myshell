@@ -27,3 +27,11 @@
 
 # open_disable_web_security_chrome.sh
 > 开发环境调试、POC验证时，禁用chrome跨域限制会更方便一些
+
+# set_dns_for_mac.sh
+> `mac`下设置dns服务器地址
+
+例:
+```bash
+sudo ./set_dns.sh 192.168.0.230
+```
