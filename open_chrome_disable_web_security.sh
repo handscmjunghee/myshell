@@ -1,0 +1,1 @@
+open -a 'Google Chrome' --args --disable-web-security --user-data-dir=/tmp/chrome_dev_test
