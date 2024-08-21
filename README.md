@@ -35,3 +35,11 @@
 ```bash
 sudo ./set_dns.sh 192.168.0.230
 ```
+# compare_list.sh
+> 输出file1比file2多出了那些id，数据治理必备
+用法：
+```bash
+./compare_list.sh ./file1.txt ./file2.txt
+
+3
+```
