@@ -17,6 +17,13 @@ kana_romaji=(
 # 游戏开始
 echo "欢迎来到假名罗马音游戏！"
 
+# 获取倒计时时间
+if [ $# -eq 0 ]; then
+    countdown=3
+else
+    countdown=$1
+fi
+
 while true; do
     # 随机选择一个假名
     random_index=$((RANDOM % ${#kana_romaji[@]}))
@@ -28,17 +35,22 @@ while true; do
 
     # 提示玩家输入
     echo "假名: $kana"
-    echo "请在 3 秒内输入对应的罗马音:"
+    echo "请立即输入对应的罗马音:"
 
-    # 倒计时
-    for i in {10..1}; do
-        echo -n "$i "
-        sleep 1
-    done
-    echo
+    # 启动倒计时
+    input=""
+    (
+        for ((i=$countdown; i>0; i--)); do
+            echo -ne "\r倒计时: $i " >&2
+            sleep 1
+        done
+    ) &
+    timer_pid=$!
 
-    # 读取玩家输入
-    read -t 1 -p "输入: " input
+    # 读取用户输入
+    read -t $countdown -p "输入: " input
+    kill $timer_pid 2>/dev/null
+    echo -ne "\r               \r" >&2  # 清除倒计时显示
 
     # 检查输入是否正确
     if [[ "$input" == "$romaji" ]]; then
