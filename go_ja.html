@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kana Typing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .kana {
+            font-size: 100px;
+            margin: 20px;
+        }
+        .timer {
+            font-size: 24px;
+            color: red;
+        }
+        .game-over {
+            color: red;
+            font-size: 48px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kana Typing Game</h1>
+    <div>
+        <label for="countdown">Set Countdown Time (seconds): </label>
+        <input type="number" id="countdown" min="1" value="5">
+        <button onclick="setCountdown()">Start Game</button>
+    </div>
+    <div class="timer" id="timer">Time Left: 5</div>
+    <div class="kana" id="kana"></div>
+    <input type="text" id="input" placeholder="Type the romaji here..." autocomplete="off">
+    <div id="game-over" class="game-over" style="display: none;">Game Over</div>
+
+    <script>
+        const kanaList = [
+            { kana: "あ", romaji: "a" }, { kana: "ア", romaji: "a" },
+            { kana: "い", romaji: "i" }, { kana: "イ", romaji: "i" },
+            { kana: "う", romaji: "u" }, { kana: "ウ", romaji: "u" },
+            { kana: "え", romaji: "e" }, { kana: "エ", romaji: "e" },
+            { kana: "お", romaji: "o" }, { kana: "オ", romaji: "o" },
+            { kana: "か", romaji: "ka" }, { kana: "カ", romaji: "ka" },
+            { kana: "き", romaji: "ki" }, { kana: "キ", romaji: "ki" },
+            { kana: "く", romaji: "ku" }, { kana: "ク", romaji: "ku" },
+            { kana: "け", romaji: "ke" }, { kana: "ケ", romaji: "ke" },
+            { kana: "こ", romaji: "ko" }, { kana: "コ", romaji: "ko" },
+            { kana: "さ", romaji: "sa" }, { kana: "サ", romaji: "sa" },
+            { kana: "し", romaji: "shi" }, { kana: "シ", romaji: "shi" },
+            { kana: "す", romaji: "su" }, { kana: "ス", romaji: "su" },
+            { kana: "せ", romaji: "se" }, { kana: "セ", romaji: "se" },
+            { kana: "そ", romaji: "so" }, { kana: "ソ", romaji: "so" },
+            { kana: "た", romaji: "ta" }, { kana: "タ", romaji: "ta" },
+            { kana: "ち", romaji: "chi" }, { kana: "チ", romaji: "chi" },
+            { kana: "つ", romaji: "tsu" }, { kana: "ツ", romaji: "tsu" },
+            { kana: "て", romaji: "te" }, { kana: "テ", romaji: "te" },
+            { kana: "と", romaji: "to" }, { kana: "ト", romaji: "to" },
+            { kana: "な", romaji: "na" }, { kana: "ナ", romaji: "na" },
+            { kana: "に", romaji: "ni" }, { kana: "ニ", romaji: "ni" },
+            { kana: "ぬ", romaji: "nu" }, { kana: "ヌ", romaji: "nu" },
+            { kana: "ね", romaji: "ne" }, { kana: "ネ", romaji: "ne" },
+            { kana: "の", romaji: "no" }, { kana: "ノ", romaji: "no" },
+            { kana: "は", romaji: "ha" }, { kana: "ハ", romaji: "ha" },
+            { kana: "ひ", romaji: "hi" }, { kana: "ヒ", romaji: "hi" },
+            { kana: "ふ", romaji: "fu" }, { kana: "フ", romaji: "fu" },
+            { kana: "へ", romaji: "he" }, { kana: "ヘ", romaji: "he" },
+            { kana: "ほ", romaji: "ho" }, { kana: "ホ", romaji: "ho" },
+            { kana: "ま", romaji: "ma" }, { kana: "マ", romaji: "ma" },
+            { kana: "み", romaji: "mi" }, { kana: "ミ", romaji: "mi" },
+            { kana: "む", romaji: "mu" }, { kana: "ム", romaji: "mu" },
+            { kana: "め", romaji: "me" }, { kana: "メ", romaji: "me" },
+            { kana: "も", romaji: "mo" }, { kana: "モ", romaji: "mo" },
+            { kana: "や", romaji: "ya" }, { kana: "ヤ", romaji: "ya" },
+            { kana: "ゆ", romaji: "yu" }, { kana: "ユ", romaji: "yu" },
+            { kana: "よ", romaji: "yo" }, { kana: "ヨ", romaji: "yo" },
+            { kana: "ら", romaji: "ra" }, { kana: "ラ", romaji: "ra" },
+            { kana: "り", romaji: "ri" }, { kana: "リ", romaji: "ri" },
+            { kana: "る", romaji: "ru" }, { kana: "ル", romaji: "ru" },
+            { kana: "れ", romaji: "re" }, { kana: "レ", romaji: "re" },
+            { kana: "ろ", romaji: "ro" }, { kana: "ロ", romaji: "ro" },
+            { kana: "わ", romaji: "wa" }, { kana: "ワ", romaji: "wa" },
+            { kana: "を", romaji: "wo" }, { kana: "ヲ", romaji: "wo" },
+            { kana: "ん", romaji: "n" }, { kana: "ン", romaji: "n" }
+        ];
+
+        let timeLeft = 5;
+        let timer;
+        let correctStreak = 0;
+        const timerElement = document.getElementById('timer');
+        const kanaElement = document.getElementById('kana');
+        const inputElement = document.getElementById('input');
+        const gameOverElement = document.getElementById('game-over');
+        const countdownInput = document.getElementById('countdown');
+
+        function setCountdown() {
+            const userTime = parseInt(countdownInput.value, 10);
+            if (!isNaN(userTime) && userTime > 0) {
+                timeLeft = userTime;
+                correctStreak = 0; // Reset streak
+                startGame();
+            } else {
+                alert("Please enter a valid number greater than 0.");
+            }
+        }
+
+        function startGame() {
+            timerElement.textContent = `Time Left: ${timeLeft}`;
+            gameOverElement.style.display = 'none';
+            inputElement.value = '';
+            inputElement.disabled = false;
+            nextKana();
+            clearInterval(timer);
+            timer = setInterval(countdown, 1000);
+        }
+
+        function nextKana() {
+            const randomKana = kanaList[Math.floor(Math.random() * kanaList.length)];
+            kanaElement.textContent = randomKana.kana;
+            kanaElement.dataset.romaji = randomKana.romaji;
+        }
+
+        function countdown() {
+            timeLeft--;
+            timerElement.textContent = `Time Left: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(timer);
+            inputElement.disabled = true;
+            gameOverElement.textContent = `Game Over! Your streak was: ${correctStreak}`;
+            gameOverElement.style.display = 'block';
+        }
+
+        inputElement.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                if (inputElement.value.trim() === kanaElement.dataset.romaji) {
+                    correctStreak++;
+                    timeLeft = parseInt(countdownInput.value, 10) || 5; // Reset timer
+                    inputElement.value = '';
+                    nextKana();
+                } else {
+                    endGame();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
